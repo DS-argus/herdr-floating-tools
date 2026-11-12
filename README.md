@@ -26,9 +26,8 @@ This is a community plugin, not an official Herdr-maintained component.
 herdr plugin install DS-argus/herdr-floating-tools
 ```
 
-This command assumes the repository is public or accessible to your Git setup.
-While the repository is private, authenticated contributors can use the
-[development checkout](#development-and-tests) instructions instead.
+No manual clone or build step is required. For development, use the
+[linked checkout](#development-and-tests) instructions instead.
 
 Installation registers the action but **does not edit your keybindings** or
 install lazygit, btop, or other tools.
@@ -127,13 +126,21 @@ the actual width. See the color configuration below.
 - [examples/herdr-nord.toml](examples/herdr-nord.toml): the matching Herdr theme
   settings. Merge into Herdr's main config without duplicating existing tables.
 
-From a checkout, copy the plugin example only if you want to replace your current
-menu configuration (back up an existing config first):
+No development checkout is required. To use the screenshot configuration,
+download the example and review it before replacing your current configuration:
+
+```sh
+curl -fL https://raw.githubusercontent.com/DS-argus/herdr-floating-tools/main/examples/nord.toml -o /tmp/herdr-floating-nord.toml
+```
+
+After reviewing the file (back up an existing config first):
 
 ```sh
 config_dir="$(herdr plugin config-dir ds-argus.floating-tools)"
-cp examples/nord.toml "$config_dir/config.toml"
+cp /tmp/herdr-floating-nord.toml "$config_dir/config.toml"
 ```
+
+From a development checkout, `examples/nord.toml` is the same example.
 
 Then apply the Herdr theme snippet and run:
 
