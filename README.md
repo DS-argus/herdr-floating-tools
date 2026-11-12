@@ -1,8 +1,8 @@
 # Herdr Floating Tools
 
 A compact keyboard launcher for terminal tools. Open a small menu, select a tool,
-and run it in a larger popup **from the original pane's directory**. The existing
-pane and its running program stay untouched.
+and run it in a larger popup using **Herdr's reported pane directory**, unless
+that tool specifies `cwd`. The existing pane and its running program stay untouched.
 
 ![Floating Tools with Nord colors, icons and tool descriptions](docs/assets/floating-tools.png)
 
@@ -78,6 +78,8 @@ id = "git"
 key = "g"
 name = "Git"
 icon = "󰊢"
+color = "#d08770"
+description = "lazygit"
 command = ["lazygit"]
 width = "80%"
 height = "80%"
@@ -103,7 +105,7 @@ close_on_exit = false
 | `color` | No | Icon/shortcut color in `#RRGGBB`; otherwise inherited accent |
 | `description` | No | Secondary display text, up to 200 characters; never inferred from command |
 | `command` | Yes | Nonempty argument array, not a shell command string |
-| `cwd` | No | Default: original pane directory. Absolute, `~/path`, or relative to that directory |
+| `cwd` | No | Default: captured `focused_pane_cwd`; explicit absolute, `~/path`, or relative override |
 | `width` | No | Tool popup width; default `"80%"` |
 | `height` | No | Tool popup height; default `"80%"` |
 | `close_on_exit` | No | Default `true`; `false` shows exit status and waits for Enter |
@@ -144,6 +146,31 @@ the inherited accent. Other named palettes use terminal defaults plus explicit
 custom tokens; automatic light/dark switching is not resolved. This is not full
 Herdr palette synchronization. Colors are exact when curses can allocate RGB
 colors, otherwise approximated to the terminal palette.
+
+## Working directory: what the default means
+
+By default, the launcher captures **`focused_pane_cwd` from Herdr's plugin
+invocation context when the menu opens**. This is the pane `cwd` reported by
+Herdr, not a permanently fixed Space/project root and not `foreground_cwd`.
+It may differ from the working directory of the foreground program, including
+an agent or file manager. The launcher does not infer a project root, inspect
+Herdr's saved session files, or substitute the foreground process directory.
+
+For example, if Herdr reports `focused_pane_cwd = "/project"` while the
+foreground process is in `/project/subdir`, a tool without `cwd` starts in
+`/project`. This does not guarantee that `/project` remains the Space's original
+creation directory: the value comes from Herdr at invocation time.
+
+A tool's explicit `cwd` takes precedence:
+
+- Omitted: use the captured `focused_pane_cwd`.
+- `cwd = "."`: also use that captured path; it does not refresh the live path.
+- `cwd = "subdir"`: resolve relative to the captured path.
+- `cwd = "~/projects/app"` or an absolute path: use that directory explicitly.
+
+The resolved directory must exist. If you need a known project root regardless
+of pane/process directory changes, set the tool's `cwd` explicitly. There is no
+Space-root mapping or execution-path display in the menu.
 
 ## Execution and safety
 
