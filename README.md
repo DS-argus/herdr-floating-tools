@@ -120,6 +120,31 @@ The menu uses compact rows and optional per-item colors. When no entries have
 icons, the icon column is removed. Long names and descriptions are clipped to
 the actual width. See the color configuration below.
 
+## Reproduce the screenshot
+
+- [examples/nord.toml](examples/nord.toml): the six tools, icons, descriptions,
+  item colors and selection colors used in the screenshot.
+- [examples/herdr-nord.toml](examples/herdr-nord.toml): the matching Herdr theme
+  settings. Merge into Herdr's main config without duplicating existing tables.
+
+From a checkout, copy the plugin example only if you want to replace your current
+menu configuration (back up an existing config first):
+
+```sh
+config_dir="$(herdr plugin config-dir ds-argus.floating-tools)"
+cp examples/nord.toml "$config_dir/config.toml"
+```
+
+Then apply the Herdr theme snippet and run:
+
+```sh
+herdr config check && herdr server reload-config
+```
+
+Open the menu again. The screenshot uses Ghostty with a Nerd Font; exact font,
+size and antialiasing are terminal settings, not plugin options. Its outside
+presentation margin/shadow was added to the cropped image and is not a UI option.
+
 ## Colors and descriptions
 
 ```toml

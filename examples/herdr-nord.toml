@@ -1,0 +1,13 @@
+# Merge these theme settings into Herdr's config.toml, not the plugin config.
+# Preserve your other settings; do not duplicate existing [theme] tables.
+[theme]
+name = "nord"
+
+[theme.custom]
+subtext0 = "#c2cad6"
+overlay1 = "#aeb9c9"
+overlay0 = "#929fb3"
+accent = "#88c0d0"
+sidebar_bg = "#2e3440"
+active_row_bg = "#3b4252"
+selection_bg = "#434c5e"

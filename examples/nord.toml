@@ -1,0 +1,61 @@
+# Plugin configuration used for the README screenshot.
+# Requires the matching Herdr theme settings in examples/herdr-nord.toml.
+# Copy this file to the plugin config directory as config.toml.
+
+[theme]
+selected_bg = "#434c5e"
+selected_fg = "#eceff4"
+
+[[tools]]
+id = "git"
+key = "g"
+name = "Git"
+icon = "󰊢"
+color = "#d08770"
+description = "lazygit"
+command = ["lazygit"]
+
+[[tools]]
+id = "github"
+key = "h"
+name = "GitHub"
+icon = "󰊤"
+color = "#81a1c1"
+description = "gh dash"
+command = ["gh", "dash"]
+
+[[tools]]
+id = "docker"
+key = "d"
+name = "Docker"
+icon = "󰡨"
+color = "#88c0d0"
+description = "lazydocker"
+command = ["lazydocker"]
+
+[[tools]]
+id = "monitor"
+key = "b"
+name = "Monitor"
+icon = "󰄨"
+color = "#a3be8c"
+description = "btop"
+command = ["btop"]
+
+[[tools]]
+id = "packages"
+key = "p"
+name = "Packages"
+icon = "󰏗"
+color = "#ebcb8b"
+description = "gpk"
+command = ["gpk"]
+
+[[tools]]
+id = "homebrew"
+key = "t"
+name = "Homebrew"
+icon = "󰂘"
+color = "#b48ead"
+description = "taproom"
+command = ["taproom"]
