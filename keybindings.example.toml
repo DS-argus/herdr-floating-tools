@@ -1,0 +1,6 @@
+# Merge into Herdr config.toml; choose another key if Prefix+f is already assigned.
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "ds-argus.floating-tools.open"
+description = "Floating tools"

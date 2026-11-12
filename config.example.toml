@@ -1,0 +1,47 @@
+# Missing config.toml uses these defaults. Tools are not installed automatically.
+# key: one lowercase letter/digit, excluding j/k/q. Every id and key must be unique.
+# Optional cwd: absolute, ~/path, or relative to the pane directory.
+# Optional width/height: integer terminal cells or "1%".."100%" (default "80%").
+# close_on_exit=false retains process output and waits for Enter after exit.
+
+[[tools]]
+id = "git"
+key = "g"
+name = "Git"
+icon = "󰊢"
+command = ["lazygit"]
+
+[[tools]]
+id = "github"
+key = "h"
+name = "GitHub"
+icon = "󰊤"
+command = ["gh", "dash"]
+
+[[tools]]
+id = "docker"
+key = "d"
+name = "Docker"
+icon = "󰡨"
+command = ["lazydocker"]
+
+[[tools]]
+id = "monitor"
+key = "b"
+name = "Monitor"
+icon = "󰄨"
+command = ["btop"]
+
+[[tools]]
+id = "packages"
+key = "p"
+name = "Packages"
+icon = "󰏗"
+command = ["gpk"]
+
+[[tools]]
+id = "homebrew"
+key = "t"
+name = "Homebrew"
+icon = "󰂘"
+command = ["taproom"]

@@ -1,0 +1,28 @@
+id = "ds-argus.floating-tools"
+name = "Floating Tools"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Compact configurable tool menu with current-directory popup execution."
+platforms = ["macos", "linux"]
+
+[[actions]]
+id = "open"
+title = "Floating tools"
+contexts = ["pane"]
+command = ["python3", "floating_tools.py", "launch"]
+
+[[panes]]
+id = "menu"
+title = "Floating tools"
+placement = "popup"
+width = 46
+height = 13
+command = ["sh", "-c", "exec python3 \"$HERDR_PLUGIN_ROOT/floating_tools.py\" menu"]
+
+[[panes]]
+id = "tool"
+title = "Floating tool"
+placement = "popup"
+width = "80%"
+height = "80%"
+command = ["sh", "-c", "exec python3 \"$HERDR_PLUGIN_ROOT/floating_tools.py\" tool"]
