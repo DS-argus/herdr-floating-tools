@@ -5,7 +5,7 @@ import re
 import tomllib
 import unicodedata
 
-FIELDS = {"id", "key", "name", "icon", "command", "cwd", "width", "height", "close_on_exit"}
+FIELDS = {"id", "key", "name", "icon", "color", "description", "command", "cwd", "width", "height", "close_on_exit"}
 RESERVED = set("jkq")
 
 
@@ -20,6 +20,17 @@ def text(value, field, maximum=100):
         raise ConfigError(f"{field} must not contain control characters.")
     return value
 
+
+def hex_color(value):
+    if not isinstance(value, str) or not re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+        raise ConfigError("Colors must use #RRGGBB format.")
+    return value.lower()
+
+
+def validate_theme(value):
+    if not isinstance(value, dict) or set(value) - {"selected_bg", "selected_fg"}:
+        raise ConfigError("[theme] supports selected_bg and selected_fg only.")
+    return {key: hex_color(color) for key, color in value.items()}
 
 def popup_size(value, field):
     if type(value) is int and 1 <= value <= 1000:
@@ -43,6 +54,12 @@ def validate_tool(raw):
     if icon != "":
         text(icon, "icon", 8)
     tool["icon"] = icon
+    description = tool.get("description", "")
+    if description != "":
+        text(description, "description", 200)
+    tool["description"] = description
+    if "color" in tool:
+        tool["color"] = hex_color(tool["color"])
     command = tool.get("command")
     if not isinstance(command, list) or not command or len(command) > 64:
         raise ConfigError("command must be a nonempty argv array (up to 64 arguments).")
@@ -62,8 +79,9 @@ def validate_tool(raw):
 
 
 def validate_config(config):
-    if not isinstance(config, dict) or set(config) != {"tools"}:
-        raise ConfigError("Configuration must contain [[tools]] entries only.")
+    if not isinstance(config, dict) or ("tools" not in config or set(config) - {"tools", "theme"}):
+        raise ConfigError("Configuration must contain [[tools]] entries and optional [theme].")
+    validate_theme(config.get("theme", {}))
     raw = config["tools"]
     if not isinstance(raw, list) or not 1 <= len(raw) <= 64:
         raise ConfigError("Configure between 1 and 64 tools.")
@@ -74,7 +92,7 @@ def validate_config(config):
     return tools
 
 
-def load_tools():
+def load_config():
     directory = os.environ.get("HERDR_PLUGIN_CONFIG_DIR")
     if not directory:
         raise ConfigError("Missing Herdr plugin config directory.")
@@ -83,7 +101,8 @@ def load_tools():
         path = Path(__file__).with_name("config.example.toml")
     try:
         with path.open("rb") as handle:
-            return validate_config(tomllib.load(handle))
+            data = tomllib.load(handle)
+            return {"tools": validate_config(data), "theme": validate_theme(data.get("theme", {}))}
     except (OSError, tomllib.TOMLDecodeError):
         raise ConfigError("Cannot read config.toml. Check syntax and permissions.") from None
 

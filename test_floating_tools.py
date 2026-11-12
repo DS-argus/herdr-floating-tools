@@ -20,7 +20,7 @@ def raw(**kwargs):
 class ConfigurationTests(unittest.TestCase):
     def test_example_and_defaults(self):
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, HERDR_PLUGIN_CONFIG_DIR=directory):
-            tools = config.load_tools()
+            tools = config.load_config()["tools"]
             self.assertEqual(len(tools), 6)
             self.assertEqual(tools[0]["width"], "80%")
             self.assertTrue(tools[0]["close_on_exit"])
@@ -39,7 +39,7 @@ class ConfigurationTests(unittest.TestCase):
                 config.validate_tool(tool)
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, HERDR_PLUGIN_CONFIG_DIR=directory):
             (Path(directory) / "config.toml").write_text("[")
-            with self.assertRaises(config.ConfigError): config.load_tools()
+            with self.assertRaises(config.ConfigError): config.load_config()["tools"]
 
     def test_cwd_resolution(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -84,7 +84,7 @@ class LifecycleTests(unittest.TestCase):
                                 # Send in pieces to exercise stream framing.
                                 for char in selection: client.sendall(char.encode())
                         thread = threading.Thread(target=choose); thread.start(); threads.append(thread)
-                with patch.object(app, "load_tools", return_value=[config.validate_tool(raw(width=60, height="70%"))]), patch.object(app, "source_cwd", return_value=directory), patch.object(app, "open_popup", side_effect=open_popup):
+                with patch.object(app, "load_config", return_value={"tools": [config.validate_tool(raw(width=60, height="70%"))], "theme": {}}), patch.object(app, "source_cwd", return_value=directory), patch.object(app, "open_popup", side_effect=open_popup):
                     if selection == "missing":
                         with self.assertRaises(RuntimeError): app.launch()
                     else: app.launch()
@@ -123,6 +123,7 @@ class MenuTests(unittest.TestCase):
         class Screen:
             def __init__(self): self.keys = iter(["j"] * 7 + ["\n"]); self.frames = []
             def keypad(self, value): pass
+            def bkgd(self, char, attr): pass
             def scrollok(self, value): self.scrolling = value
             def getmaxyx(self): return 11, 44
             def erase(self): self.frames.append([])
@@ -136,13 +137,16 @@ class MenuTests(unittest.TestCase):
                 stack.enter_context(patch.object(curses, name))
             stack.enter_context(patch.object(curses, "has_colors", return_value=True))
             stack.enter_context(patch.object(curses, "COLORS", 256, create=True))
+            stack.enter_context(patch.object(curses, "COLOR_PAIRS", 256, create=True))
+            stack.enter_context(patch.object(curses, "can_change_color", return_value=False))
+            stack.enter_context(patch.object(menu, "resolve", return_value={"bg": "#2e3440", "fg": "#d8dee9", "muted": "#c2cad6", "accent": "#88c0d0", "selected_bg": "#434c5e", "selected_fg": "#eceff4"}))
             stack.enter_context(patch.object(curses, "color_pair", side_effect=lambda i: i << 8))
             stack.enter_context(patch.object(curses, "init_pair", side_effect=lambda i, fg, bg: pairs.update({i: bg})))
             self.assertEqual(menu.draw(screen, tools), "7")
         self.assertFalse(screen.scrolling)
         for frame in screen.frames:
             row = next(r for r, c, t, a in frame if c == 2 and t == "›")
-            self.assertEqual({pairs[(a >> 8) & 255] for r, c, t, a in frame if r == row}, {60})
+            self.assertEqual({pairs[(a >> 8) & 255] for r, c, t, a in frame if r == row}, {pairs[3]})
 
 
 if __name__ == "__main__": unittest.main()

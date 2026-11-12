@@ -11,7 +11,7 @@ import sys
 import tempfile
 import time
 
-from config import ConfigError, load_tools, resolve_cwd, validate_config, validate_tool
+from config import ConfigError, load_config, resolve_cwd, validate_config, validate_tool
 from menu import dimensions, draw
 
 PLUGIN = "ds-argus.floating-tools"
@@ -64,9 +64,10 @@ def source_cwd():
 
 
 def launch():
-    tools = load_tools()
+    settings = load_config()
+    tools = settings["tools"]
     cwd = source_cwd()
-    snapshot = encode({"tools": tools})
+    snapshot = encode(settings)
     width, height = dimensions(tools)
     # Capture config and source cwd once. Menu and tool use the same snapshot.
     with tempfile.TemporaryDirectory(prefix="herdr-ft-", dir="/tmp") as directory:
@@ -105,8 +106,8 @@ def launch():
 def menu():
     with socket.socket(socket.AF_UNIX) as connection:
         connection.connect(os.environ["FLOATING_SOCKET"])
-        tools = validate_config(json.loads(os.environ["FLOATING_CONFIG"]))
-        selected = curses.wrapper(draw, tools)
+        settings = json.loads(os.environ["FLOATING_CONFIG"])
+        selected = curses.wrapper(draw, validate_config(settings), settings.get("theme", {}))
         if selected is not None:
             connection.sendall(selected.encode("ascii"))
 

@@ -4,6 +4,10 @@ A compact keyboard launcher for terminal tools. Open a small menu, select a tool
 and run it in a larger popup **from the original pane's directory**. The existing
 pane and its running program stay untouched.
 
+![Floating Tools with Nord colors, icons and tool descriptions](docs/assets/floating-tools.png)
+
+Actual Herdr/Ghostty screenshot, cropped to the menu with a presentation margin.
+
 This is a community plugin, not an official Herdr-maintained component.
 
 ## Requirements
@@ -96,6 +100,8 @@ close_on_exit = false
 | `key` | Yes | Unique lowercase letter or digit; `j/k/q` are reserved |
 | `name` | Yes | Display name; up to 100 characters |
 | `icon` | No | Optional icon, up to 8 characters; omitted icon is blank |
+| `color` | No | Icon/shortcut color in `#RRGGBB`; otherwise inherited accent |
+| `description` | No | Secondary display text, up to 200 characters; never inferred from command |
 | `command` | Yes | Nonempty argument array, not a shell command string |
 | `cwd` | No | Default: original pane directory. Absolute, `~/path`, or relative to that directory |
 | `width` | No | Tool popup width; default `"80%"` |
@@ -108,9 +114,36 @@ settings apply to the **tool**, not the menu. Menu dimensions grow with item
 count and display-name width (up to 100 columns), with pagination when clamped.
 There are at most 64 tools and a 32 KB serialized configuration limit.
 
-The menu uses a compact Frost-colored style and one row per tool. Selected
-icons, names and shortcuts share the same background. When no entries have
-icons, the icon column is removed. Long names are clipped to the actual width.
+The menu uses compact rows and optional per-item colors. When no entries have
+icons, the icon column is removed. Long names and descriptions are clipped to
+the actual width. See the color configuration below.
+
+## Colors and descriptions
+
+```toml
+[theme]
+selected_bg = "#434c5e"
+selected_fg = "#eceff4"
+```
+
+Each tool accepts optional `color = "#d08770"` for its icon and shortcut,
+and `description = "lazygit"` for the secondary column. Colors use `#RRGGBB`.
+Descriptions are independent of commands: omitted descriptions remain blank,
+and arguments are never automatically exposed. Long descriptions are truncated
+with `…` using terminal-cell width. The shortcut column remains fixed; the
+name has priority over the description on narrow terminals.
+
+Selection foreground applies to the name and description, while the icon and
+shortcut keep their item color. All cells share the same selection background.
+
+Theme inheritance reads `HERDR_CONFIG_PATH` or the standard Herdr config path.
+It supports the static Nord palette and explicit hex/reset `theme.custom`
+tokens (`panel_bg`, `text`, `subtext0`, `accent`, `selection_bg`). Plugin
+`selected_bg` and `selected_fg` take precedence. An item without `color` uses
+the inherited accent. Other named palettes use terminal defaults plus explicit
+custom tokens; automatic light/dark switching is not resolved. This is not full
+Herdr palette synchronization. Colors are exact when curses can allocate RGB
+colors, otherwise approximated to the terminal palette.
 
 ## Execution and safety
 
